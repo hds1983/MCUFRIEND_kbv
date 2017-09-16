@@ -1976,6 +1976,7 @@ case 0x4532:    // thanks Leodino
     case 0x5408:
         _lcd_capable = 0 | REV_SCREEN | READ_BGR | INVERT_GS;
         goto common_9320;
+    case 0x1505:                //R61505 thanks Ravi_kanchan2004. R61505V, R61505W different
     case 0x9320:
         _lcd_capable = 0 | REV_SCREEN | READ_BGR;
       common_9320:
@@ -2230,7 +2231,7 @@ case 0x4532:    // thanks Leodino
         };
         table8_ads = ILI9329_regValues, table_size = sizeof(ILI9329_regValues);
         break;
-    case 0x9340:
+    case 0x9340:                //ILI9340 thanks Ravi_kanchan2004.
         _lcd_capable = AUTO_READINC | MIPI_DCS_REV1 | MV_AXIS | READ_24BITS | REV_SCREEN;
         goto common_9341;
     case 0x9341:
@@ -2491,86 +2492,6 @@ case 0x4532:    // thanks Leodino
         *p16 = 320;
         break;
 
-    case 0x1505:                //R61505
-        _lcd_capable = 0 | REV_SCREEN | READ_LOWHIGH;
-        static const uint16_t R61505U_regValues[] PROGMEM = { //MCHIP drvTFT001.c
-            // Setup display
-            0x0000, 0x0000,
-            0x0007, 0x0001,  // DISPCTL1: D = 1
-            TFTLCD_DELAY, 5,
-            0x0017, 0x0001,  // POWCTL6: PSE = 1
-            TFTLCD_DELAY, 5,
-            0x0010, 0x17b0,  // POWCTL1: SAP=1, BT=7, APE=1, AP=7
-            0x0011, 0x0007,  // POWCTL2: VC=7
-            0x0012, 0x011a,  // POWCTL3: VCMR=1, PON=1, VRH=10
-            0x0013, 0x0f00,  // POWCTL4: VDV=15
-            0x0015, 0x0000,  // POWCTL5: 
-            0x0029, 0x0009,  // POWCTL7: VCM=9
-            0x00fd, 0x0000,  // f.k.
-            TFTLCD_DELAY, 5,
-            0x0012, 0x013a,  // POWCTL3: VCMR=1, PSON=1, PON=1, VRH=10
-            TFTLCD_DELAY, 50,
-            0x0001, 0x0100,  // DRVCTL1: SS=1
-            0x0002, 0x0700,  // LCDDRV:  r/o=1, B/C=1, EOR=1 
-
-            0x0003, 0x1030,  // ENTRYMD: BGR=1, I/D=3
-
-            0x0008, 0x0808,  // DISPCTL2: FP=8, BP=8
-            0x0009, 0x0000,  // DISPCTL3: 
-            0x000a, 0x0000,  // DISPCTL4:
-            0x000c, 0x0000,  // RGBCTL:
-            0x000d, 0x0000,  // FRMPOS: FMP=0
-            0x0030, 0x0000,  //Gamma
-            0x0031, 0x0000,
-            0x0032, 0x0000,
-            0x0033, 0x0000,
-            0x0034, 0x0000,
-            0x0035, 0x0000,
-            0x0036, 0x0000,
-            0x0037, 0x0707,
-            0x0038, 0x0707,
-            0x0039, 0x0707,
-            0x003a, 0x0303,
-            0x003b, 0x0303,
-            0x003c, 0x0707,
-            0x003d, 0x0808,
-            0x0050, 0x0000,  //
-            0x0051, 0x00ef,
-            0x0052, 0x0000,
-            0x0053, 0x013f,
-            0x0060, 0x2700,  // DRVCTL2: NL=32
-            0x0061, 0x0001,  // BASIMG:  REV=1
-            0x006a, 0x0000,  // VERTSCRL:
-            0x0090, 0x0010,  // PANCTL1: DIV100=1  
-            0x0092, 0x0000,
-            0x0093, 0x0000,
-            0x0007, 0x0021,  // DISPCTL1: GON=1, D=1
-            TFTLCD_DELAY, 1,
-            0x0007, 0x0061,  // DISPCTL1: VON=1, GON=1, D=1
-            TFTLCD_DELAY, 50,
-            0x0007, 0x0173,  // DISPCTL1: BASEE=1, VON=1, GON=1, DTE=1, D=1
-            0x0020, 0x0000,
-            0x0021, 0x0000,
-            0x0022, 0x0000,
-            0x0030, 0x0707,  // GAMMA
-            0x0031, 0x0407,
-            0x0032, 0x0203,
-            0x0033, 0x0303,
-            0x0034, 0x0303,
-            0x0035, 0x0202,
-            0x0036, 0x001f,
-            0x0037, 0x0707,
-            0x0038, 0x0407,
-            0x0039, 0x0203,
-            0x003a, 0x0303,
-            0x003b, 0x0303,
-            0x003c, 0x0202,
-            0x003d, 0x001f,
-            0x0020, 0x0000,
-            0x0021, 0x0000,
-        };
-        init_table16(R61505U_regValues, sizeof(R61505U_regValues));
-        break;
     case 0xB505:                //R61505V
     case 0xC505:                //R61505W
         _lcd_capable = 0 | REV_SCREEN | READ_LOWHIGH;

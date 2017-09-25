@@ -15,6 +15,7 @@
 //#define USE_OPENSMART_SHIELD_PINOUT //thanks Michel53
 //#define USE_ELECHOUSE_DUE_16BIT_SHIELD    //Untested yet
 //#define USE_MY_BLUEPILL
+#define USE_RAVI_KANCHAN_BLUEPILL
 
 #if 0
 #elif defined(__AVR_ATmega328P__) && defined(USE_SSD1289_SHIELD_UNO)    //on UNO
@@ -1008,6 +1009,57 @@ static inline void write_8(uint8_t val)
 //                                     PA10,PA9                     PA3-PA0                         PB7,PB6  
 #define setWriteDir() {GP_OUT(GPIOA, CRH, 0xFF0); GP_OUT(GPIOA, CRL, 0xFFFF); GP_OUT(GPIOB, CRL, 0xFF000000); }
 #define setReadDir()  {GP_INP(GPIOA, CRH, 0xFF0); GP_INP(GPIOA, CRL, 0xFFFF); GP_INP(GPIOB, CRL, 0xFF000000); }
+
+#define write8(x)     { write_8(x); WRITE_DELAY; WR_STROBE; }
+#define write16(x)    { uint8_t h = (x)>>8, l = x; write8(h); write8(l); }
+#define READ_8(dst)   { RD_STROBE; READ_DELAY; dst = read_8(); RD_IDLE; }
+#define READ_16(dst)  { uint8_t hi; READ_8(hi); READ_8(dst); dst |= (hi << 8); }
+
+#elif  defined(USE_RAVI_KANCHAN_BLUEPILL) && (defined(__STM32F1__) || defined(STM32F103xB)) // MAPLECORE or STM32CORE 
+#warning USE_RAVI_KANCHAN_BLUEPILL
+
+#if defined(ARDUINO_NUCLEO_F103C8)   //regular CMSIS libraries
+#define REGS(x) x
+#define GPIO_INIT()   { RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN | RCC_APB2ENR_AFIOEN; \
+        AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_1;}
+#else                                                                  //weird Maple libraries
+#define REGS(x) regs->x
+#endif
+
+#define WRITE_DELAY { }
+#define READ_DELAY  { RD_ACTIVE; }
+#define GROUP_MODE(port, reg, mask, val)  {port->REGS(reg) = (port->REGS(reg) & ~(mask)) | ((mask)&(val)); }
+#define GP_OUT(port, reg, mask)           GROUP_MODE(port, reg, mask, 0x33333333)
+#define GP_INP(port, reg, mask)           GROUP_MODE(port, reg, mask, 0x44444444)
+#define PIN_OUTPUT(port, pin) {\
+        if (pin < 8) {GP_OUT(port, CRL, 0xF<<((pin)<<2));} \
+        else {GP_OUT(port, CRH, 0xF<<((pin&7)<<2));} \
+    }
+#define PIN_INPUT(port, pin) { \
+        if (pin < 8) { GP_INP(port, CRL, 0xF<<((pin)<<2)); } \
+        else { GP_INP(port, CRH, 0xF<<((pin&7)<<2)); } \
+    }
+
+#define PIN_HIGH(port, pin)   (port)-> REGS(BSRR) = (1<<(pin))
+#define PIN_LOW(port, pin)    (port)-> REGS(BSRR) = (1<<((pin)+16))
+
+#define RD_PORT GPIOA
+#define RD_PIN  0
+#define WR_PORT GPIOA
+#define WR_PIN  1
+#define CD_PORT GPIOA
+#define CD_PIN  2
+#define CS_PORT GPIOA
+#define CS_PIN  3
+#define RESET_PORT GPIOB
+#define RESET_PIN  0
+
+// configure macros for the data pins
+#define write_8(d)    { GPIOB->REGS(BSRR) = 0xFF00 << 16; GPIOB->REGS(BSRR) = ((d) << 8) & 0xFF00; }
+#define read_8()      ((GPIOB->REGS(IDR) & 0xFF00) >> 8)
+//                                          PB15..PB8
+#define setWriteDir() {GP_OUT(GPIOB, CRH, 0xFFFFFFFF); }
+#define setReadDir()  {GP_INP(GPIOB, CRH, 0xFFFFFFFF); }
 
 #define write8(x)     { write_8(x); WRITE_DELAY; WR_STROBE; }
 #define write16(x)    { uint8_t h = (x)>>8, l = x; write8(h); write8(l); }

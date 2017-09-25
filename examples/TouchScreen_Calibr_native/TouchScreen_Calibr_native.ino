@@ -17,6 +17,11 @@ MCUFRIEND_kbv tft;
 // MCUFRIEND UNO shield shares pins with the TFT.
 #if defined(ESP32)
 int XP = 27, YP = 4, XM = 15, YM = 14;  //most common configuration
+#elif defined(ARDUINO_GENERIC_STM32F103C)
+#define A0 0
+#define A4 0
+#define A5 0
+int XP = PB14, YP = PA1, XM = PA2, YM = PB15;  //RAVI_KANCHAN_BLUEPILL
 #else
 int XP = 6, YP = A1, XM = A2, YM = 7;  //most common configuration
 //int XP = 7, YP = A2, XM = A1, YM = 6;  //most common configuration
@@ -71,7 +76,7 @@ char *Aval(int pin)
 {
     static char buf[2][10], cnt;
     cnt = !cnt;
-#if defined(ESP32)
+#if defined(ESP32) || defined(ARDUINO_GENERIC_STM32F103C)
     sprintf(buf[cnt], "%d", pin);
 #else
     sprintf(buf[cnt], "A%d", pin - A0);
@@ -136,6 +141,9 @@ boolean diagnose_pins()
 void setup()
 {
     Serial.begin(9600);
+#if defined(ARDUINO_GENERIC_STM32F103C)
+    while (Serial.isConnected() == false) ;
+#endif
     Serial.println(TITLE);
     bool ret = true;
 #if defined(__arm__) || defined(ESP32)

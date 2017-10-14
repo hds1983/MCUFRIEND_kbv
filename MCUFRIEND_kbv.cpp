@@ -2035,7 +2035,55 @@ case 0x4532:    // thanks Leodino
     case 0x5408:
         _lcd_capable = 0 | REV_SCREEN | READ_BGR; //Red 2.4" thanks jorgenv, Ardlab_Gent
 //        _lcd_capable = 0 | REV_SCREEN | READ_BGR | INVERT_GS; //Blue 2.8" might be different
-        goto common_9320;
+        //https://github.com/espruino/Espruino/blob/master/libs/graphics/lcd_fsmc.c#L854
+        static const uint16_t SPFD5408_regValues[] PROGMEM = {
+            0x0001, 0x0100,     /* Driver Output Contral Register */
+            0x0002, 0x0700,     /* LCD Driving Waveform Contral */
+            0x0003, 0x1030,   /* Entry ModeÉèÖÃ */
+
+            0x0004, 0x0000,   /* Scalling Control register */
+            0x0008, 0x0207,   /* Display Control 2 */
+            0x0009, 0x0000,   /* Display Control 3 */
+            0x000A, 0x0000,   /* Frame Cycle Control */
+            0x000C, 0x0000,   /* External Display Interface Control 1 */
+            0x000D, 0x0000,     /* Frame Maker Position */
+            0x000F, 0x0000,   /* External Display Interface Control 2 */
+            TFTLCD_DELAY, 50,
+            0x0007, 0x0101,   /* Display Control */
+            TFTLCD_DELAY, 50,
+            0x0010, 0x16B0,     /* Power Control 1 */
+            0x0011, 0x0001,     /* Power Control 2 */
+            0x0017, 0x0001,     /* Power Control 3 */
+            0x0012, 0x0138,     /* Power Control 4 */
+            0x0013, 0x0800,     /* Power Control 5 */
+            0x0029, 0x0009,   /* NVM read data 2 */
+            0x002a, 0x0009,   /* NVM read data 3 */
+            0x00a4, 0x0000,
+            0x0050, 0x0000,   /* ÉèÖÃ²Ù×÷Ž°¿ÚµÄXÖá¿ªÊŒÁÐ */
+            0x0051, 0x00EF,   /* ÉèÖÃ²Ù×÷Ž°¿ÚµÄXÖáœáÊøÁÐ */
+            0x0052, 0x0000,   /* ÉèÖÃ²Ù×÷Ž°¿ÚµÄYÖá¿ªÊŒÐÐ */
+            0x0053, 0x013F,   /* ÉèÖÃ²Ù×÷Ž°¿ÚµÄYÖáœáÊøÐÐ */
+
+            0x0060, 0x2700,   /* Driver Output Control */
+            /* ÉèÖÃÆÁÄ»µÄµãÊýÒÔŒ°ÉšÃèµÄÆðÊŒÐÐ */
+            0x0061, 0x0003,   /* Driver Output Control */
+            0x006A, 0x0000,   /* Vertical Scroll Control */
+
+            0x0080, 0x0000,   /* Display Position šC Partial Display 1 */
+            0x0081, 0x0000,   /* RAM Address Start šC Partial Display 1 */
+            0x0082, 0x0000,   /* RAM address End - Partial Display 1 */
+            0x0083, 0x0000,   /* Display Position šC Partial Display 2 */
+            0x0084, 0x0000,   /* RAM Address Start šC Partial Display 2 */
+            0x0085, 0x0000,   /* RAM address End šC Partail Display2 */
+            0x0090, 0x0013,   /* Frame Cycle Control */
+            0x0092, 0x0000,   /* Panel Interface Control 2 */
+            0x0093, 0x0003,   /* Panel Interface control 3 */
+            0x0095, 0x0110,   /* Frame Cycle Control */
+            0x0007, 0x0173,
+        };
+        init_table16(SPFD5408_regValues, sizeof(SPFD5408_regValues));
+        break;
+//        goto common_9320;
     case 0x1505:                //R61505 thanks Ravi_kanchan2004. R61505V, R61505W different
     case 0x9320:
         _lcd_capable = 0 | REV_SCREEN | READ_BGR;

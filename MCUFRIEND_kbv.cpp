@@ -2036,7 +2036,7 @@ case 0x4532:    // thanks Leodino
         _lcd_capable = 0 | REV_SCREEN | READ_BGR; //Red 2.4" thanks jorgenv, Ardlab_Gent
 //        _lcd_capable = 0 | REV_SCREEN | READ_BGR | INVERT_GS; //Blue 2.8" might be different
         //https://github.com/espruino/Espruino/blob/master/libs/graphics/lcd_fsmc.c#L854
-        static const uint16_t SPFD5408_regValues[] PROGMEM = {
+        static const uint16_t SPFD5408_espruino[] PROGMEM = {
             0x0001, 0x0100,     /* Driver Output Contral Register */
             0x0002, 0x0700,     /* LCD Driving Waveform Contral */
             0x0003, 0x1030,   /* Entry ModeÉèÖÃ */
@@ -2081,7 +2081,161 @@ case 0x4532:    // thanks Leodino
             0x0095, 0x0110,   /* Frame Cycle Control */
             0x0007, 0x0173,
         };
-        init_table16(SPFD5408_regValues, sizeof(SPFD5408_regValues));
+        //https://github.com/bjornfor/stm32-test/blob/master/STM32L1xx_StdPeriph_Lib_V1.1.1/Utilities/STM32_EVAL/STM32L152_EVAL/stm32l152_eval_lcd.c
+        static const uint16_t SPFD5408_bjornfor[] PROGMEM = {
+            /* Start Initial Sequence --------------------------------------------------*/
+            227, 0x3008, /* Set internal timing */
+            231, 0x0012, /* Set internal timing */
+            239, 0x1231, /* Set internal timing */
+            1, 0x0100,   /* Set SS and SM bit */
+            2, 0x0700,   /* Set 1 line inversion */
+            3, 0x1030,   /* Set GRAM write direction and BGR=1. */
+            4, 0x0000,   /* Resize register */
+            8, 0x0202,   /* Set the back porch and front porch */
+            9, 0x0000,   /* Set non-display area refresh cycle ISC[3:0] */
+            10, 0x0000,  /* FMARK function */
+            12, 0x0000,  /* RGB interface setting */
+            13, 0x0000,  /* Frame marker Position */
+            15, 0x0000,  /* RGB interface polarity */
+            /* Power On sequence -------------------------------------------------------*/
+            16, 0x0000,  /* SAP, BT[3:0], AP, DSTB, SLP, STB */
+            17, 0x0000,  /* DC1[2:0], DC0[2:0], VC[2:0] */
+            18, 0x0000,  /* VREG1OUT voltage */
+            19, 0x0000,  /* VDV[4:0] for VCOM amplitude */
+            TFTLCD_DELAY, 20,               /* Dis-charge capacitor power voltage (200ms) */
+            17, 0x0007,  /* DC1[2:0], DC0[2:0], VC[2:0] */
+            TFTLCD_DELAY, 5,                /* Delay 50 ms */
+            16, 0x12B0,  /* SAP, BT[3:0], AP, DSTB, SLP, STB */
+            TFTLCD_DELAY, 5,                 /* Delay 50 ms */
+            18, 0x01BD,  /* External reference voltage= Vci */
+            TFTLCD_DELAY, 5,                /* Delay 50 ms */
+            19, 0x1400,       /* VDV[4:0] for VCOM amplitude */
+            41, 0x000E,  /* VCM[4:0] for VCOMH */
+            TFTLCD_DELAY, 5,                /* Delay 50 ms */
+            32, 0x0000,  /* GRAM horizontal Address */
+            33, 0x013F,  /* GRAM Vertical Address */
+            /* Adjust the Gamma Curve --------------------------------------------------*/
+            48, 0x0007,
+            49, 0x0302,
+            50, 0x0105,
+            53, 0x0206,
+            54, 0x0808,
+            55, 0x0206,
+            56, 0x0504,
+            57, 0x0007,
+            60, 0x0105,
+            61, 0x0808,
+            /* Set GRAM area -----------------------------------------------------------*/
+            80, 0x0000,  /* Horizontal GRAM Start Address */
+            81, 0x00EF,  /* Horizontal GRAM End Address */
+            82, 0x0000,  /* Vertical GRAM Start Address */
+            83, 0x013F,  /* Vertical GRAM End Address */
+            96,  0xA700, /* Gate Scan Line */
+            97,  0x0001, /* NDL,VLE, REV */
+            106, 0x0000, /* Set scrolling line */
+            /* Partial Display Control -------------------------------------------------*/
+            128, 0x0000,
+            129, 0x0000,
+            130, 0x0000,
+            131, 0x0000,
+            132, 0x0000,
+            133, 0x0000,
+            /* Panel Control -----------------------------------------------------------*/
+            144, 0x0010,
+            146, 0x0000,
+            147, 0x0003,
+            149, 0x0110,
+            151, 0x0000,
+            152, 0x0000,
+            /* Set GRAM write direction and BGR = 1
+               I/D=01 (Horizontal : increment, Vertical : decrement)
+               AM=1 (address is updated in vertical writing direction) */
+            3, 0x1018,
+            7, 0x0112,   /* 262K color and display ON */
+        };
+        //https://developer.mbed.org/users/frank26080115/.../GLCD_SPI_LPC1700.c
+        static const uint16_t SPFD5408_mbed[] PROGMEM = {
+
+            /* Start Initial Sequence --------------------------------------------------*/
+            0x01, 0x0100,                 /* Set SS bit                         */
+            0x02, 0x0700,                 /* Set 1 line inversion               */
+            0x04, 0x0000,                 /* Resize register                    */
+            0x08, 0x0207,                 /* 2 lines front, 7 back porch        */
+            0x09, 0x0000,                 /* Set non-disp area refresh cyc ISC  */
+            0x0A, 0x0000,                 /* FMARK function                     */
+            0x0C, 0x0000,                 /* RGB interface setting              */
+            0x0D, 0x0000,                 /* Frame marker Position              */
+            0x0F, 0x0000,                 /* RGB interface polarity             */
+
+            /* Power On sequence -------------------------------------------------------*/
+            0x10, 0x0000,                 /* Reset Power Control 1              */
+            0x11, 0x0000,                 /* Reset Power Control 2              */
+            0x12, 0x0000,                 /* Reset Power Control 3              */
+            0x13, 0x0000,                 /* Reset Power Control 4              */
+            TFTLCD_DELAY, 20,                            /* Discharge cap power voltage (200ms)*/
+            0x10, 0x12B0,                 /* SAP, BT[3:0], AP, DSTB, SLP, STB   */
+            0x11, 0x0007,                 /* DC1[2:0], DC0[2:0], VC[2:0]        */
+            TFTLCD_DELAY, 5,                             /* Delay 50 ms                        */
+            0x12, 0x01BD,                 /* VREG1OUT voltage                   */
+            TFTLCD_DELAY, 5,                             /* Delay 50 ms                        */
+            0x13, 0x1400,                 /* VDV[4:0] for VCOM amplitude        */
+            0x29, 0x000E,                 /* VCM[4:0] for VCOMH                 */
+            TFTLCD_DELAY, 5,                             /* Delay 50 ms                        */
+            0x20, 0x0000,                 /* GRAM horizontal Address            */
+            0x21, 0x0000,                 /* GRAM Vertical Address              */
+
+            /* Adjust the Gamma Curve --------------------------------------------------*/
+            0x30, 0x0B0D,
+            0x31, 0x1923,
+            0x32, 0x1C26,
+            0x33, 0x261C,
+            0x34, 0x2419,
+            0x35, 0x0D0B,
+            0x36, 0x1006,
+            0x37, 0x0610,
+            0x38, 0x0706,
+            0x39, 0x0304,
+            0x3A, 0x0E05,
+            0x3B, 0x0E01,
+            0x3C, 0x010E,
+            0x3D, 0x050E,
+            0x3E, 0x0403,
+            0x3F, 0x0607,
+
+            /* Set GRAM area -----------------------------------------------------------*/
+            0x50, 0x0000,                 /* Horizontal GRAM Start Address      */
+            0x51, (240 - 1),           /* Horizontal GRAM End   Address      */
+            0x52, 0x0000,                 /* Vertical   GRAM Start Address      */
+            0x53, (320 - 1),            /* Vertical   GRAM End   Address      */
+            0x60, 0xA700,                 /* Gate Scan Line                     */
+            0x60, 0xA700,               /* Gate Scan Line                     */
+            0x61, 0x0001,                 /* NDL,VLE, REV                       */
+            0x6A, 0x0000,                 /* Set scrolling line                 */
+
+            /* Partial Display Control -------------------------------------------------*/
+            0x80, 0x0000,
+            0x81, 0x0000,
+            0x82, 0x0000,
+            0x83, 0x0000,
+            0x84, 0x0000,
+            0x85, 0x0000,
+
+            /* Panel Control -----------------------------------------------------------*/
+            0x90, 0x0010,
+            0x92, 0x0000,
+            0x93, 0x0003,
+            0x95, 0x0110,
+            0x97, 0x0000,
+            0x98, 0x0000,
+
+            /* Set GRAM write direction
+               I/D=10 (Horizontal : increment, Vertical : increment)
+               AM=1   (address is updated in vertical writing direction)                */
+            0x03, 0x1038,
+
+            0x07, 0x0137,                 /* 262K color and display ON          */
+        };
+        //        init_table16(SPFD5408_mbed, sizeof(SPFD5408_mbed));
         break;
 //        goto common_9320;
     case 0x1505:                //R61505 thanks Ravi_kanchan2004. R61505V, R61505W different

@@ -2235,6 +2235,8 @@ case 0x4532:    // thanks Leodino
 
             0x07, 0x0137,                 /* 262K color and display ON          */
         };
+        //        init_table16(SPFD5408_espruino, sizeof(SPFD5408_espruino));
+        init_table16(SPFD5408_bjornfor, sizeof(SPFD5408_bjornfor));
         //        init_table16(SPFD5408_mbed, sizeof(SPFD5408_mbed));
         break;
 //        goto common_9320;

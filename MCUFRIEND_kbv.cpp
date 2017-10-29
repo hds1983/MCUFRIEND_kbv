@@ -18,6 +18,7 @@
 #define SUPPORT_9488_555          //costs +230 bytes, 0.03s / 0.19s
 #define SUPPORT_B509_7793         //R61509, ST7793 +244 bytes
 #define OFFSET_9327 32            //costs about 103 bytes, 0.08s
+#define OFFSET_LETTERBOX 24       //force ILI9488 as 272x480 for baettigp
 
 #include "MCUFRIEND_kbv.h"
 #if defined(USE_SERIAL)
@@ -490,6 +491,12 @@ void MCUFRIEND_kbv::drawPixel(int16_t x, int16_t y, uint16_t color)
 	    if (rotation == 3) x += OFFSET_9327;
     }
 #endif
+#if defined(OFFSET_LETTERBOX)
+	if (_lcd_ID == 0x9488) {
+	    if (rotation & 1) y += OFFSET_LETTERBOX;
+	    else x += OFFSET_LETTERBOX;
+    }
+#endif
     if (_lcd_capable & MIPI_DCS_REV1) {
         WriteCmdParam4(_MC, x >> 8, x, x >> 8, x);
         WriteCmdParam4(_MP, y >> 8, y, y >> 8, y);
@@ -509,6 +516,12 @@ void MCUFRIEND_kbv::setAddrWindow(int16_t x, int16_t y, int16_t x1, int16_t y1)
 	if (_lcd_ID == 0x9327) {
 	    if (rotation == 2) y += OFFSET_9327, y1 += OFFSET_9327;
 	    if (rotation == 3) x += OFFSET_9327, x1 += OFFSET_9327;
+    }
+#endif
+#if defined(OFFSET_LETTERBOX)
+	if (_lcd_ID == 0x9488) {
+	    if (rotation & 1) y += OFFSET_LETTERBOX, y1 += OFFSET_LETTERBOX;
+	    else x += OFFSET_LETTERBOX, x1 += OFFSET_LETTERBOX;
     }
 #endif
 #if 1
@@ -2544,7 +2557,11 @@ case 0x4532:    // thanks Leodino
         p16 = (int16_t *) & HEIGHT;
         *p16 = 480;
         p16 = (int16_t *) & WIDTH;
+#if defined(OFFSET_LETTERBOX)
+        *p16 = 272;
+#else
         *p16 = 320;
+#endif
         break;
     case 0xB505:                //R61505V
     case 0xC505:                //R61505W

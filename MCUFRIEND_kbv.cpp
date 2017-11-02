@@ -492,7 +492,7 @@ void MCUFRIEND_kbv::drawPixel(int16_t x, int16_t y, uint16_t color)
     }
 #endif
 #if defined(OFFSET_LETTERBOX)
-	if (_lcd_ID == 0x9488) {
+	if (WIDTH == 272) {
 	    if (rotation & 1) y += OFFSET_LETTERBOX;
 	    else x += OFFSET_LETTERBOX;
     }
@@ -519,7 +519,7 @@ void MCUFRIEND_kbv::setAddrWindow(int16_t x, int16_t y, int16_t x1, int16_t y1)
     }
 #endif
 #if defined(OFFSET_LETTERBOX)
-	if (_lcd_ID == 0x9488) {
+	if (WIDTH == 272) {
 	    if (rotation & 1) y += OFFSET_LETTERBOX, y1 += OFFSET_LETTERBOX;
 	    else x += OFFSET_LETTERBOX, x1 += OFFSET_LETTERBOX;
     }
@@ -2557,11 +2557,7 @@ case 0x4532:    // thanks Leodino
         p16 = (int16_t *) & HEIGHT;
         *p16 = 480;
         p16 = (int16_t *) & WIDTH;
-#if defined(OFFSET_LETTERBOX)
-        *p16 = 272;
-#else
         *p16 = 320;
-#endif
         break;
     case 0xB505:                //R61505V
     case 0xC505:                //R61505W
@@ -2743,6 +2739,12 @@ case 0x4532:    // thanks Leodino
     }
     setRotation(0);             //PORTRAIT
     invertDisplay(false);
+#if defined(OFFSET_LETTERBOX)
+    if (lcd_ID == 0x9488 || lcd_ID == 0x6814) {
+        p16 = (int16_t *) & WIDTH;
+        *p16 = 272;
+    }
+#endif
 #if defined(SUPPORT_9488_555)
     if (_lcd_ID == 0x9488) {
 		is555 = 0;

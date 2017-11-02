@@ -18,7 +18,7 @@
 #define SUPPORT_9488_555          //costs +230 bytes, 0.03s / 0.19s
 #define SUPPORT_B509_7793         //R61509, ST7793 +244 bytes
 #define OFFSET_9327 32            //costs about 103 bytes, 0.08s
-#define OFFSET_LETTERBOX 24       //force ILI9488 as 272x480 for baettigp
+#define OFFSET_LETTERBOX 24       //force ILI9488 and RM68140 as 272x480 for baettigp
 
 #include "MCUFRIEND_kbv.h"
 #if defined(USE_SERIAL)

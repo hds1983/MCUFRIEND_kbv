@@ -2740,7 +2740,7 @@ case 0x4532:    // thanks Leodino
     setRotation(0);             //PORTRAIT
     invertDisplay(false);
 #if defined(OFFSET_LETTERBOX)
-    if (lcd_ID == 0x9488 || lcd_ID == 0x6814) {
+    if (_lcd_ID == 0x9488 || _lcd_ID == 0x6814) {
         p16 = (int16_t *) & WIDTH;
         *p16 = 272;
     }

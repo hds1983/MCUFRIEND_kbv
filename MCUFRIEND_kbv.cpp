@@ -3,7 +3,7 @@
 //#define SUPPORT_1289              //costs about 408 bytes
 //#define SUPPORT_1580              //R61580 Untested
 #define SUPPORT_1963              //only works with 16BIT bus anyway
-//#define SUPPORT_4532              //LGDP4532 +120 bytes.  thanks Leodino
+#define SUPPORT_4532              //LGDP4532 +120 bytes.  thanks Leodino
 #define SUPPORT_4535              //LGDP4535 +180 bytes
 #define SUPPORT_68140             //RM68140 +52 bytes defaults to PIXFMT=0x55
 #define SUPPORT_7781              //ST7781 +172 bytes
